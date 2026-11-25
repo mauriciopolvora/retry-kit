@@ -26,9 +26,7 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
-      - run: npm ci
       - run: npm audit --audit-level=high
-        if: ${{ !cancelled() }}
       - name: gitleaks on the new commits
         if: ${{ !cancelled() }}
         env:
@@ -53,3 +51,6 @@ jobs:
           # WARNING: gitleaks exits 0 on a range git cannot read, so check the range first. -m scans the changes in merge commits.
           git rev-list $range >/dev/null
           "$RUNNER_TEMP/gitleaks" git --no-banner --redact --log-opts="$range -m" .
+      # WARNING: install last and with --ignore-scripts, so no install script runs before or during the scans.
+      - run: npm ci --ignore-scripts
+        if: ${{ !cancelled() }}
